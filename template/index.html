@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Rewordly: Personal Paraphrasing Assistant</title>
+  <!-- Add Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <!-- Add Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <style>
+    /* Add custom CSS here, if needed */
+    body{
+      background-image: url("/static/image.png");
+      background-size: cover;
+      background-repeat: no-repeat;
+    }
+
+  .footer-container {
+    padding-top: 100px; /* Adjust this value to set the desired space */
+    margin-bottom: 50px;
+  }
+
+  .feedback-form{
+    background-color: transparent;
+  }
+  </style>
+</head>
+
+<body>
+
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <h1 class="text-center">Rewordly: Personal Paraphrasing Assistant</h1>
+
+        <form id="'form" method="post" action="/">
+          <div class="form-group">
+            <label for="inputText">Enter text to paraphrase:</label>
+            <textarea name="text" class="form-control" id="inputText" rows="4" placeholder="Enter your text here..." required></textarea>
+          </div>
+
+          <div class="text-center">
+            <button class="btn btn-primary" type="submit" onclick="paraphrase()"><i class="fa fa-magic"></i> Paraphrase Text</button>
+          </div>
+
+          <div class="form-group">
+            <label for="outputText">Paraphrased Text:</label>
+            <textarea class="form-control" id="outputText" rows="4" readonly placeholder="Paraphrased text will appear here"></textarea>
+          </div>
+
+          <div class="form-group text-center">
+            <button class="btn btn-secondary" type="button" onclick="copyTextToClipboard()"><i class="fa fa-copy"></i> Copy</button>
+            <a class="btn btn-secondary" id="downloadTxtButton" download="paraphrased_text.txt"><i class="fa fa-download"></i> Download .txt</a>
+            <a class="btn btn-secondary" id="downloadPdfButton"><i class="fa fa-download"></i> Download .pdf</a>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="container footer-container">
+    <footer class="bg-light text-center mt-3 py-5 footer-gap">
+      <div class="container feedback-form">
+        <h2 class="mb-4">Feedback</h2>
+        <form id="feedbackForm" action="https://formspree.io/f/maygkpoz" method="POST">
+          <div class="form-group">
+            <textarea class="form-control" id="feedbackMessage" name="message" rows="4" placeholder="Enter your feedback here..." required></textarea>
+          </div>
+          <button class="btn btn-primary" type="submit">
+            <i class="fa fa-paper-plane"></i> Send Feedback
+          </button>
+        </form>
+        <br>
+        <button class="btn btn-secondary" onclick="goToHelpPage()">
+          <i class="fa-solid fa-hand-holding-hand"></i> Help
+        </button>
+        <button class="btn btn-secondary" onclick="goToFAQPage()">
+          <i class="fa fa-question-circle" aria-hidden="true"></i> FAQ
+        </button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Add Bootstrap JS (Popper.js and Bootstrap) -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+  <!-- Add Font Awesome for icons -->
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  
+  <!-- Additional Libraries for Document Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/vfs_fonts.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+
+  <!-- Your HTML code remains mostly the same -->
+
+<script>
+  var inputText = document.getElementById("inputText").value;
+  function paraphrase(event) {
+    event.preventDefault();
+
+    var inputText = document.getElementById("inputText").value;
+
+    if (inputText.trim() === "") {
+      alert("Please enter text to paraphrase.");
+      return; // Exit the function
+    }
+
+    fetch('/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ text: inputText }),
+    })
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById("outputText").value = data;
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  }
+
+  document.getElementById("inputText").value = inputText;
+
+  var paraphrasedText = "{{ rephrased_text }}";
+  document.getElementById("outputText").value = paraphrasedText;
+
+  function copyTextToClipboard() {
+    var outputText = document.getElementById("outputText");
+    outputText.select();
+    document.execCommand("copy");
+  }
+
+  // Set content and enable download button
+  function generateAndDownloadPdf() {
+    var outputText = document.getElementById("outputText").value;
+    var docDefinition = { content: outputText };
+    pdfMake.createPdf(docDefinition).download("paraphrased_text.pdf");
+  }
+
+  document.getElementById("downloadTxtButton").addEventListener("click", function () {
+    var outputText = document.getElementById("outputText").value;
+    this.href = "data:text/plain;charset=utf-8," + encodeURIComponent(outputText);
+  });
+
+  //document.getElementById("downloadDocxButton").addEventListener("click", generateAndDownloadDocx);
+  document.getElementById("downloadPdfButton").addEventListener("click", generateAndDownloadPdf);
+
+  function goToFAQPage() {
+    window.location.href = '/faq'; 
+  }
+
+  function goToHelpPage() {
+    window.location.href = '/help';
+  }
+</script>
+
+</body>
+
+</html>
