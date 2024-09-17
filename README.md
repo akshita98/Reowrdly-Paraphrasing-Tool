@@ -1,7 +1,5 @@
 # Rewordly: Personal Paraphrasing Assistant
 
-### Kanban Board: [link](https://code.vt.edu/dhruveel10/rewordly/-/boards)
-### Wiki: [link](https://code.vt.edu/dhruveel10/rewordly/-/wikis/Phase-1)
 
 To run the website:
 
